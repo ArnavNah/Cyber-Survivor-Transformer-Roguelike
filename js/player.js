@@ -94,6 +94,7 @@ export class PlayerController {
     this.animFrame = 0;
     this.idleTimer = 0;
     this.appliedMilestones = {};
+    this.pendingUpgrades = 0;
   }
 
   // ========================================
@@ -343,14 +344,11 @@ export class PlayerController {
   gainXP(amount) {
     const eff = this.getEffectiveStats();
     this.xp += amount * eff.xpMult;
-    let leveledUp = false;
     
     while (this.xp >= this.xpNeeded) {
       this.levelUp();
-      leveledUp = true;
+      this.pendingUpgrades = (this.pendingUpgrades || 0) + 1;
     }
-
-    return leveledUp;
   }
 
   levelUp() {

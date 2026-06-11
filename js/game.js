@@ -476,9 +476,15 @@ class GameManager {
     this.pickups.update(
       dt,
       this.player,
-      () => this.triggerLevelUp(),
+      null, // level up callback removed, handled below
       () => this.triggerChestReward()
     );
+
+    // 6.5 Check for pending level ups
+    if (this.player.pendingUpgrades > 0 && !this.isPaused) {
+      this.player.pendingUpgrades--;
+      this.triggerLevelUp();
+    }
 
     // 7. Update VFX pools
     this.particleManager.update(dt);

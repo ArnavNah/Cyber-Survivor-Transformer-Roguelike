@@ -205,6 +205,15 @@ export class PickupSystem {
     const gem = this.pool.find(p => !p.active);
     if (gem) {
       gem.init(x, y, xpValue, false);
+    } else {
+      // Pool full: Merge XP into a random existing gem to prevent XP loss
+      const activeGems = this.pool.filter(p => p.active && p.type === 'gem' && !p.isChest);
+      if (activeGems.length > 0) {
+        const randomGem = activeGems[Math.floor(Math.random() * activeGems.length)];
+        randomGem.xpValue += xpValue;
+        // Make the dense gem visually larger to indicate its value
+        randomGem.spriteSize = Math.min(40, randomGem.spriteSize + 2);
+      }
     }
   }
 
@@ -290,7 +299,7 @@ export class PickupSystem {
           // Normal gem collect
           audio.playGem();
           
-          const leveledUp = player.gainXP(pickup.xpValue);
+          player.gainXP(pickup.xpValue);
           
           // Particle trail sparks
           this.particleManager.spawnGemSparkle(player.x, player.y, '#00ffff');
@@ -304,10 +313,6 @@ export class PickupSystem {
             false,
             12
           );
-
-          if (leveledUp) {
-            onLevelUp();
-          }
         }
       }
     }
