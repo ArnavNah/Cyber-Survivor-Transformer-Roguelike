@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A highly polished 2D Vampire Survivors-style survival prototype with automatic combat, wave scaling, and upgrade card mechanics.">
+  <title>Survivors Arena - Roguelike Survival Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game-container">
+    <!-- Retro CRT Monitor Overlay -->
+    <div class="crt-overlay"></div>
+
+    <!-- Game Canvas -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Blood Moon Overlay -->
+    <div id="blood-moon-overlay" class="blood-moon-overlay hidden"></div>
+
+    <!-- HUD Overlay -->
+    <div id="hud" class="hud-overlay hidden">
+      <!-- XP Progress Bar -->
+      <div class="xp-bar-container">
+        <div id="xp-bar-fill" class="xp-bar-fill"></div>
+        <span id="xp-text" class="xp-text">Lv. 1 - 0 / 10 XP</span>
+      </div>
+
+      <!-- Top Stats Bar -->
+      <div class="hud-header">
+        <div class="hud-stat-box player-hp-box">
+          <div class="hp-bar-label">HP</div>
+          <div class="hp-bar-outer">
+            <div id="hp-bar-fill" class="hp-bar-fill"></div>
+            <span id="hp-text">100/100</span>
+          </div>
+        </div>
+        
+        <div class="hud-timer-box">
+          <div id="hud-timer">00:00</div>
+          <div class="timer-sub">SURVIVED</div>
+        </div>
+
+        <div class="hud-stat-box kills-box">
+          <div class="stat-value" id="kill-count">0</div>
+          <div class="stat-label">DEFEATED</div>
+        </div>
+      </div>
+
+      <!-- Active Weapons / Upgrades Grid -->
+      <div id="active-upgrades" class="active-upgrades-container"></div>
+
+      <!-- Combo Display -->
+      <div id="hud-combo" class="combo-container hidden">
+        <div id="combo-number">0x</div>
+        <div class="combo-suffix">COMBO</div>
+        <div id="combo-buff-name"></div>
+      </div>
+
+      <!-- Score Display -->
+      <div id="hud-score" class="score-container">
+        <div class="score-label">SCORE</div>
+        <div id="score-value">0</div>
+      </div>
+
+      <!-- Frenzy Meter -->
+      <div id="hud-frenzy" class="frenzy-meter-container">
+        <div class="frenzy-label">FRENZY METER</div>
+        <div class="frenzy-bar-outer">
+          <div id="frenzy-bar-fill" class="frenzy-bar-fill"></div>
+        </div>
+      </div>
+
+      <!-- Inventory Tray -->
+      <div id="inventory-tray" class="inventory-tray">
+        <div class="inventory-section">
+          <div class="inventory-label">WEAPONS</div>
+          <div id="weapon-slots" class="inventory-slots">
+            <!-- Dynamically populated weapon slot icons -->
+          </div>
+        </div>
+        <div class="inventory-section">
+          <div class="inventory-label">PASSIVES</div>
+          <div id="passive-slots" class="inventory-slots">
+            <!-- Dynamically populated passive slot icons -->
+          </div>
+        </div>
+      </div>
+      
+      <!-- Frenzy Mode Overlay -->
+      <div id="frenzy-overlay" class="frenzy-overlay hidden"></div>
+
+      <!-- XP Storm Overlay -->
+      <div id="xpstorm-overlay" class="xpstorm-overlay hidden"></div>
+
+      <!-- Boss Health Bar -->
+      <div id="boss-health-container" class="boss-health-container hidden">
+        <div class="boss-name" id="boss-name">ELITE GUARDIAN</div>
+        <div class="boss-health-outer">
+          <div id="boss-health-fill" class="boss-health-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Event Overlay Banner -->
+    <div id="event-banner" class="event-banner hidden">
+      <div id="event-title">EVENT ACTIVATED!</div>
+      <div id="event-desc">Event description goes here.</div>
+    </div>
+
+    <!-- Start / Main Menu Screen -->
+    <div id="start-screen" class="overlay-screen">
+      <div class="screen-content glass-card">
+        <h1 class="game-title">SURVIVORS<br><span class="glow-text">ARENA</span></h1>
+        <p class="game-subtitle">Defeat the swarm. Collect gems. Evolve your weapons.</p>
+        
+        <div class="tutorial-box">
+          <div class="control-key">W A S D</div>
+          <span>or</span>
+          <div class="control-key">Arrows</div>
+          <p class="control-desc">to move. Auto-firing targets nearest enemy.</p>
+        </div>
+
+        <button id="start-btn" class="action-btn glow-button">ENTER ARENA</button>
+      </div>
+    </div>
+
+    <!-- Level Up Modal Screen -->
+    <div id="levelup-screen" class="overlay-screen hidden">
+      <div class="screen-content">
+        <h2 class="screen-title glow-text">LEVEL UP!</h2>
+        <p class="screen-subtitle">Choose an upgrade to strengthen your arsenal</p>
+        <div id="upgrade-cards-container" class="cards-grid">
+          <!-- Dynamically populated card elements -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Chest Reward Screen -->
+    <div id="chest-screen" class="overlay-screen hidden">
+      <div class="screen-content chest-content">
+        <h2 class="screen-title glow-text">ELITE TREASURE</h2>
+        <div class="chest-animation-container">
+          <div id="chest-sprite" class="chest-closed"></div>
+          <div class="chest-shine"></div>
+        </div>
+        <p id="chest-instruction" class="chest-instruction">Click the chest to open</p>
+        <div id="chest-rewards-container" class="chest-rewards-grid hidden">
+          <!-- Dynamically populated rewards -->
+        </div>
+        <button id="chest-continue-btn" class="action-btn hidden">CONTINUE</button>
+      </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameover-screen" class="overlay-screen hidden">
+      <div class="screen-content glass-card">
+        <h2 class="screen-title warning-text">FALLEN</h2>
+        <p class="screen-subtitle">The swarm has overwhelmed you.</p>
+
+        <div class="stats-summary">
+          <div class="summary-row">
+            <span class="summary-label">Time Survived</span>
+            <span class="summary-value" id="summary-time">00:00</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Final Score</span>
+            <span class="summary-value" id="summary-score" style="color: #ffd700;">0</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Level Reached</span>
+            <span class="summary-value" id="summary-level">1</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Enemies Defeated</span>
+            <span class="summary-value" id="summary-kills">0</span>
+          </div>
+        </div>
+
+        <button id="restart-btn" class="action-btn glow-button">TRY AGAIN</button>
+      </div>
+    </div>
+
+    <!-- Debug Toggle Panel -->
+    <div id="debug-panel" class="debug-hud hidden">
+      <div class="debug-title">DEBUG CONSOLE (F3)</div>
+      <div class="debug-row">FPS: <span id="debug-fps">0</span></div>
+      <div class="debug-row">Enemies: <span id="debug-enemies">0</span></div>
+      <div class="debug-row">Projectiles: <span id="debug-projectiles">0</span></div>
+      <div class="debug-row">Pickups: <span id="debug-pickups">0</span></div>
+      <div class="debug-buttons">
+        <button class="debug-btn" id="db-level">Lv Up</button>
+        <button class="debug-btn" id="db-boss">Spawn Boss</button>
+        <button class="debug-btn" id="db-god">God Mode</button>
+        <button class="debug-btn" id="db-kill">Kill All</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Entry Script -->
+  <script>
+    window.onerror = function(msg, url, lineNo, columnNo, error) {
+      const errDiv = document.createElement('div');
+      errDiv.style.position = 'absolute';
+      errDiv.style.top = '10px';
+      errDiv.style.left = '10px';
+      errDiv.style.backgroundColor = 'red';
+      errDiv.style.color = 'white';
+      errDiv.style.padding = '10px';
+      errDiv.style.zIndex = '9999';
+      errDiv.innerHTML = 'ERROR: ' + msg + '<br>Line: ' + lineNo + '<br>' + (error && error.stack ? error.stack : '');
+      document.body.appendChild(errDiv);
+      return false;
+    };
+  </script>
+  <script type="module" src="js/game.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "survivors-arena-roguelike",
+  "version": "1.0.0",
+  "description": "Vampire Survivors-style HTML5 Canvas roguelike survival prototype",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx -y http-server -p 3000 -c-1"
+  },
+  "keywords": [
+    "roguelike",
+    "vampire-survivors",
+    "html5-canvas",
+    "javascript"
+  ],
+  "author": "Antigravity",
+  "license": "ISC"
+}
